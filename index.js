@@ -1,5 +1,5 @@
 /**
- * dsh-voice-studio —— 语音合成 + 歌声转换插件。
+ * dsh-voice-studio-plugin —— 语音合成 + 歌声转换插件。
  *
  * 设计原则（逐条对应踩过的坑，详见 PITFALLS.md）：
  *   · 服务进程用 pythonw 启动，不经 cmd，绝不弹控制台窗口。

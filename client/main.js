@@ -20,7 +20,7 @@ import { closeAllDropdowns } from './src/dropdown.js'
 
 const ROUTE = '/voice-studio'
 const ROUTE_ASSET = ROUTE
-const POS_KEY = 'dsh-voice-studio-pos'
+const POS_KEY = 'dsh-voice-studio-plugin-pos'
 const SNAP_PX = 24
 const POLL_MS = 1500
 

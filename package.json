@@ -51,7 +51,7 @@
     "dsh": ">=0.1.7-rc.1 <0.3.0-0"
   },
   "license": "MIT",
-  "author": "dsh-voice-studio contributors",
+  "author": "dsh-voice-studio-plugin contributors",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",

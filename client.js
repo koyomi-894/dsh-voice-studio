@@ -101,9 +101,9 @@ window.__ModuleLoader__.load({
 `
     function installCss() {
       if (typeof document === 'undefined') return
-      if (document.querySelector('style[data-plugin-css="dsh-voice-studio-settings"]')) return
+      if (document.querySelector('style[data-plugin-css="dsh-voice-studio-plugin-settings"]')) return
       const style = document.createElement('style')
-      style.setAttribute('data-plugin-css', 'dsh-voice-studio-settings')
+      style.setAttribute('data-plugin-css', 'dsh-voice-studio-plugin-settings')
       style.textContent = CSS
       document.head.appendChild(style)
     }
