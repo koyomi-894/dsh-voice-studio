@@ -1,0 +1,9 @@
+# dsh-voice-studio — bundle patch
+#
+# 把插件插入当前 profile 的配置树。
+# 本地开发安装：
+#   dsh plugin --profile desktop add link:<你的路径>/dsh-voice-studio
+
+- insert:
+    - id: voice-studio
+      name: dsh-voice-studio

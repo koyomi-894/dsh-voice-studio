@@ -1,0 +1,116 @@
+{
+  "moods": [
+    {
+      "key": "idle_00",
+      "name": "Raid 1",
+      "tag": "idle",
+      "file": "idle_00.webp",
+      "bytes": 468196
+    },
+    {
+      "key": "idle_01",
+      "name": "催眠",
+      "tag": "idle",
+      "file": "idle_01.webp",
+      "bytes": 745772
+    },
+    {
+      "key": "idle_02",
+      "name": "吃(爆米花)",
+      "tag": "idle",
+      "file": "idle_02.webp",
+      "bytes": 567772
+    },
+    {
+      "key": "idle_03",
+      "name": "工作(小睡)",
+      "tag": "idle",
+      "file": "idle_03.webp",
+      "bytes": 605478
+    },
+    {
+      "key": "idle_04",
+      "name": "工作(疲倦)",
+      "tag": "idle",
+      "file": "idle_04.webp",
+      "bytes": 628440
+    },
+    {
+      "key": "idle_05",
+      "name": "打字(生气)",
+      "tag": "idle",
+      "file": "idle_05.webp",
+      "bytes": 110000
+    },
+    {
+      "key": "idle_06",
+      "name": "按钮",
+      "tag": "idle",
+      "file": "idle_06.webp",
+      "bytes": 122048
+    },
+    {
+      "key": "idle_07",
+      "name": "爱心 2",
+      "tag": "idle",
+      "file": "idle_07.webp",
+      "bytes": 762926
+    },
+    {
+      "key": "idle_08",
+      "name": "电风扇 1",
+      "tag": "idle",
+      "file": "idle_08.webp",
+      "bytes": 418148
+    },
+    {
+      "key": "idle_09",
+      "name": "舔舔",
+      "tag": "idle",
+      "file": "idle_09.webp",
+      "bytes": 295600
+    },
+    {
+      "key": "idle_10",
+      "name": "舞蹈(散味)",
+      "tag": "idle",
+      "file": "idle_10.webp",
+      "bytes": 504472
+    },
+    {
+      "key": "idle_11",
+      "name": "记录 2",
+      "tag": "idle",
+      "file": "idle_11.webp",
+      "bytes": 377044
+    },
+    {
+      "key": "idle_12",
+      "name": "跳舞(低皮质醇)",
+      "tag": "idle",
+      "file": "idle_12.webp",
+      "bytes": 536222
+    },
+    {
+      "key": "idle_13",
+      "name": "馋(刀叉)",
+      "tag": "idle",
+      "file": "idle_13.webp",
+      "bytes": 265928
+    },
+    {
+      "key": "voice_14",
+      "name": "扩音器",
+      "tag": "voice",
+      "file": "voice_14.webp",
+      "bytes": 196668
+    },
+    {
+      "key": "voice_15",
+      "name": "静音 2",
+      "tag": "voice",
+      "file": "voice_15.webp",
+      "bytes": 590586
+    }
+  ]
+}

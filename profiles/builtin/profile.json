@@ -1,0 +1,25 @@
+{
+  "id": "builtin",
+  "name": "内置语音",
+  "description": "系统自带的免费语音，无需下载，装好即用。",
+  "builtin": true,
+  "assets": {
+    "icon": "",
+    "background": ""
+  },
+  "tts": {
+    "engine": "sapi",
+    "sapiVoice": "",
+    "baseUrl": "",
+    "refAudio": "",
+    "promptText": "",
+    "promptLang": "zh",
+    "textLang": "zh"
+  },
+  "svc": {
+    "baseUrl": "",
+    "refAudio": "",
+    "backing": "keep",
+    "steps": 30
+  }
+}

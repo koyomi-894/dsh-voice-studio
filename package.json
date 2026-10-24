@@ -1,0 +1,62 @@
+{
+  "name": "dsh-voice-studio",
+  "version": "0.1.0",
+  "description": "可自定义角色的 DSH 语音插件：把助手回复念出来、也能唱歌。声音模型、参考音色、背景图和图标全部通过 profile 目录配置，无需改代码。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "tts",
+    "voice",
+    "gpt-sovits",
+    "seed-vc",
+    "singing"
+  ],
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "client.js",
+    "src",
+    "client",
+    "profiles/builtin/",
+    "profiles/_template/",
+    "market/index.json",
+    "assets",
+    ".rewrite/PITFALLS.md",
+    "locale/*.json",
+    "icon.webp",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "manifestVersion": 1,
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-chat",
+        "@deepseek-ai/dsh-api-session-controller"
+      ]
+    }
+  },
+  "engines": {
+    "dsh": ">=0.1.7-rc.1 <0.3.0-0"
+  },
+  "license": "MIT",
+  "author": "dsh-voice-studio contributors",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.webp",
+    "./package.json": "./package.json"
+  }
+}

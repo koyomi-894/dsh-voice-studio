@@ -1,0 +1,19 @@
+# 运行期产物（个人环境）
+cache/
+node_modules/
+*.log
+*.log.old
+.vram-baseline.json
+user-config.json
+user-config.json.*
+
+# 个人模型与素材（不发布）
+profiles/dania/
+
+# 开发期备份杂物
+.backup/
+*.bak*
+css_part*.txt
+
+# 仅本地开发交接文档（含机器信息，不发布）
+.rewrite/DEV-HANDOFF.md

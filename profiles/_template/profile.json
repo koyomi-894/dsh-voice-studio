@@ -1,0 +1,29 @@
+{
+  "id": "my-voice",
+  "name": "我的角色",
+  "description": "在这里写一句角色介绍，面板和设置页会显示。",
+  "builtin": false,
+  "assets": {
+    "icon": "",
+    "background": ""
+  },
+  "tts": {
+    "engine": "gpt-sovits",
+    "baseUrl": "http://127.0.0.1:9880",
+    "refAudio": "D:/path/to/ref.wav",
+    "promptText": "参考音频里说的那句话，要逐字写下来",
+    "promptLang": "zh",
+    "textLang": "zh",
+    "sapiVoice": ""
+  },
+  "svc": {
+    "baseUrl": "http://127.0.0.1:9890",
+    "refAudio": "",
+    "backing": "keep",
+    "steps": 30
+  },
+  "modelFiles": {
+    "gpt": "",
+    "sovits": ""
+  }
+}
