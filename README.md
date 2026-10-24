@@ -1,4 +1,4 @@
-# dsh-voice-studio
+# dsh-voice-studio-plugin
 
 给 DeepSeek Harness（DSH）加一个会说话、会唱歌的桌面角色。
 
@@ -76,13 +76,13 @@ DSH 设置（左下角头像）→ 「语音」分页：说话 / 唱歌 / 模型
 本地开发（`link:` 指向源码目录，改完需重启 DSH）：
 
 ```bash
-dsh plugin --profile <你的profile> add link:C:/path/to/dsh-voice-studio
+dsh plugin --profile <你的profile> add link:C:/path/to/dsh-voice-studio-plugin
 ```
 
 发布到 npm 后：
 
 ```bash
-dsh plugin --profile <你的profile> add dsh-voice-studio
+dsh plugin --profile <你的profile> add dsh-voice-studio-plugin
 ```
 
 安装后在 DSH 设置 → 语音里启用。
@@ -289,7 +289,7 @@ qq-bridge 之类的机器人可以用它在说话前把语音服务拉起来。
 ## 项目结构
 
 ```
-dsh-voice-studio/
+dsh-voice-studio-plugin/
 ├── index.js               插件入口（后端）：23 个 HTTP 路由、会话监听、
 │                          唤醒端口、空闲冷却、退出清理
 ├── client.js              设置页 + 小喇叭（DSH 槽位，独立 script）

@@ -41,7 +41,7 @@ const CONFIG_FILE = path.join(HERE, 'user-config.json')
 const LOG_FILE = path.join(HERE, 'debug.log')
 const CLIENT_ROUTE = ROUTE + '/main.js'
 
-export const name = 'dsh-voice-studio'
+export const name = 'dsh-voice-studio-plugin'
 
 function makeLog(ctx) {
   return (level, message) => {

@@ -1,5 +1,5 @@
 /**
- * dsh-voice-studio — 设置页 Client 半边。
+ * dsh-voice-studio-plugin — 设置页 Client 半边。
  *
  * 以 dsh.client bundle 格式加载（与 dsh-meme / our-free-model 同款）：
  * 在左下角头像打开的设置界面注册一个「语音」栏目。
@@ -9,7 +9,7 @@
  * UI 风格对齐其它 DSH 插件（dsh-meme 等）：全部使用 --dsw-alias-* 主题变量。
  */
 window.__ModuleLoader__.load({
-  id: 'dsh-voice-studio',
+  id: 'dsh-voice-studio-plugin',
   factory: (require) => {
     const module = { exports: {} }
     const exports = module.exports
@@ -612,7 +612,7 @@ window.__ModuleLoader__.load({
 
     exports.apply = apply
     exports.inject = ['slots']
-    exports.name = 'dsh-voice-studio'
+    exports.name = 'dsh-voice-studio-plugin'
     return module.exports
   },
 })
