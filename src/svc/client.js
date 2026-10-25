@@ -69,16 +69,28 @@ export async function unloadSvc(baseUrl, { timeoutMs = 30000 } = {}) {
   }
 }
 
-/** 列出可用源音频。 */
+/**
+ * 列出可用源音频。
+ *
+ * ⚠️ 协议契约：svc_server.py 的 /library 返回的是 `{ dir, items: [{ name, bytes }] }`，
+ * 不是 `{ songs: [...] }`。以前这里读 d.songs，于是歌曲库永远是空的 ——
+ * 面板显示「0 首」、下拉框空，但文件其实好好躺在 songs/ 里。
+ * 这里同时兼容 items / songs 两种键，且把对象项归一成文件名字符串，
+ * 因为前端把列表值直接当作 /sing 的 source 传回服务端。
+ */
 export async function listSongs(baseUrl, { timeoutMs = 5000 } = {}) {
-  if (!baseUrl) return { ok: false, songs: [], error: '未配置地址' }
+  if (!baseUrl) return { ok: false, dir: '', songs: [], error: '未配置地址' }
   try {
     const r = await fetch(trim(baseUrl) + '/library', { signal: AbortSignal.timeout(timeoutMs) })
-    if (!r.ok) return { ok: false, songs: [], error: 'HTTP ' + r.status }
+    if (!r.ok) return { ok: false, dir: '', songs: [], error: 'HTTP ' + r.status }
     const d = await r.json()
-    return { ok: true, songs: Array.isArray(d?.songs) ? d.songs : [] }
+    const raw = Array.isArray(d?.items) ? d.items : (Array.isArray(d?.songs) ? d.songs : [])
+    const songs = raw
+      .map((it) => (typeof it === 'string' ? it : String(it?.name ?? '')))
+      .filter(Boolean)
+    return { ok: true, dir: typeof d?.dir === 'string' ? d.dir : '', songs }
   } catch (error) {
-    return { ok: false, songs: [], error: String(error?.message ?? error) }
+    return { ok: false, dir: '', songs: [], error: String(error?.message ?? error) }
   }
 }
 

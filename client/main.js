@@ -415,7 +415,9 @@ function boot() {
     const r = await api.songs()
     if (r && r.ok) {
       state.songs = r.songs || []
-      if (!state.song && state.songs.length) state.song = state.songs[0]
+      // 之前选中的歌可能已被删除/改名：回落到第一首，避免下拉框停在失效值上
+      if (state.songs.length && !state.songs.includes(state.song)) state.song = state.songs[0]
+      if (!state.songs.length) state.song = ''
       state.lastError = ''
     } else {
       // 服务离线/未启动时给个友好提示，用户才知道为什么列表是空的
@@ -705,7 +707,8 @@ function boot() {
   }
 
   function renderBody() {
-    if (currentTab !== state.tab) {
+    const tabChanged = currentTab !== state.tab
+    if (tabChanged) {
       closeAllDropdowns()
       currentTab = state.tab
       body.replaceChildren(pages[state.tab].root)
@@ -714,7 +717,9 @@ function boot() {
 
     // 数据按需加载：不依赖点击事件，避免回调被打断
     if (state.tab === 'market' && !state.marketLoaded) void loadMarket()
-    if (state.tab === 'sing' && !state.songs.length) void loadSongs()
+    // 唱歌页：列表为空要拉；切回该页也要重拉 —— 用户多半是切出去往 songs/
+    // 里丢了新歌再切回来，只在「空」时拉的话永远看不到新放进去的歌。
+    if (state.tab === 'sing' && (tabChanged || !state.songs.length)) void loadSongs()
   }
 
   function positionPanel() {
