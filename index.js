@@ -1248,14 +1248,22 @@ export function apply(ctx, rawConfig) {
         try {
           const u = new URL(req.url ?? '/', 'http://x')
           const which = u.searchParams.get('which') || 'songs'
+          const eff = effective()
+          // 服务部署目录来自配置（pythonPath/ttsScript/ttsCwd/svcScript/svcCwd）。
+          // 历史硬编码常量已随「部署路径全部可配置」删除：这里若继续引用它，
+          // 只会抛 ReferenceError（前端表现就是「按钮点了没反应」）。
+          const svcCwd = eff.svcCwd || (eff.svcScript ? path.dirname(eff.svcScript) : '')
           let target
           if (which === 'profile') {
-            const eff = effective()
             target = eff.profile ? eff.profile.dir : PROFILES_ROOT
           } else if (which === 'svc') {
-            target = SVC_CWD
+            target = svcCwd
           } else {
-            target = path.join(SVC_CWD, 'songs')
+            target = svcCwd ? path.join(svcCwd, 'songs') : ''
+          }
+          if (!target) {
+            sendJson(res, 400, { ok: false, error: '未配置唱歌服务目录（svcCwd），无法定位歌源文件夹' })
+            return
           }
           if (!fs.existsSync(target)) {
             sendJson(res, 404, { ok: false, error: '目录不存在：' + target })
@@ -1265,6 +1273,8 @@ export function apply(ctx, rawConfig) {
           const c = spawn('explorer', [target], {
             detached: true, stdio: 'ignore', windowsHide: true,
           })
+          // 资源管理器起不来时至少留下日志（响应已返回，前端只看到 ok）
+          c.on('error', (e) => log('warn', '[open-folder] 唤起资源管理器失败：' + String(e?.message ?? e)))
           c.unref()
           sendJson(res, 200, { ok: true, path: target })
         } catch (error) {
