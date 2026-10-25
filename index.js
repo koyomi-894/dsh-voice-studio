@@ -1270,8 +1270,11 @@ export function apply(ctx, rawConfig) {
             return
           }
           const { spawn } = await import('node:child_process')
+          // ⚠️ 绝对不要加 windowsHide: true：Node 会把 CREATE_NO_WINDOW 传给 explorer，
+          // 结果窗口被创建成**隐藏窗口**（IsWindowVisible=false，不是最小化），
+          // 用户看到的现象就是「点了没反应」。2026-10-25 实测 17 个窗口全是隐藏的。
           const c = spawn('explorer', [target], {
-            detached: true, stdio: 'ignore', windowsHide: true,
+            detached: true, stdio: 'ignore',
           })
           // 资源管理器起不来时至少留下日志（响应已返回，前端只看到 ok）
           c.on('error', (e) => log('warn', '[open-folder] 唤起资源管理器失败：' + String(e?.message ?? e)))
