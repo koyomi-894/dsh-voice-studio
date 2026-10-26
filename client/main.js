@@ -339,6 +339,10 @@ function boot() {
     state.synthesizing = Boolean(r.synthesizing)
     state.svc.singing = Boolean(r.svc?.singing)
     state.svc.queueLen = Number(r.svc?.queueLen) || 0
+    state.svc.pendingResult = Number(r.svc?.pendingResult) || 0
+    if (r.svc && typeof r.svc.lastError === 'string') state.svc.lastError = r.svc.lastError
+    if (r.svc && typeof r.svc.lastSource === 'string') state.svc.lastSource = r.svc.lastSource
+    if (r.svc && typeof r.svc.lastFile === 'string') state.svc.lastFile = r.svc.lastFile
     state.tts.up = Boolean(r.tts?.up)
     state.tts.warm = Boolean(r.tts?.warm)
     state.svc.up = Boolean(r.svc?.up)
@@ -541,6 +545,9 @@ function boot() {
     sing: createSingPage({
       onSing: async () => {
         if (!state.song) return
+        state.svc.lastError = ''
+        state.svc.lastSource = state.song
+        emit()
         const r = await api.sing({
           source: state.song,
           steps: state.svcSteps,
@@ -548,8 +555,16 @@ function boot() {
           vocalGain: state.vocalGain,
           backingGain: state.backingGain,
         })
-        if (!r || !r.ok) { showNotice('转换失败，详见面板', 'error'); return }
-        showNotice('转换完成，详见面板')
+        if (!r || !r.ok) {
+          state.svc.lastError = (r && r.error) || '转换请求失败'
+          showBubble('error', '唱歌失败，详见面板', true)
+          emit()
+          return
+        }
+        // 接口只是入队：真正唱完要等转换结束，/poll 取到音频后自动播放。
+        state.svc.queueLen = Number(r.position) || state.svc.queueLen
+        showBubble('warm', r.note || '已加入唱歌队列', true)
+        emit()
       },
       onWarmToggle: async () => {
         state.svc.warming = true
@@ -1061,6 +1076,22 @@ function boot() {
     else stopVoiceMood()
   }
 
+  /** 播一段 base64 音频（朗读/唱歌共用）：期间切 voice 动图，播完切回待机。 */
+  async function playBase64(base64) {
+    state.speaking += 1
+    playVoiceMood()
+    emit()
+    const res = await player.play(base64)
+    if (!res.ok) logEvent('播放失败: ' + res.error, 'warn')
+    if (res.duration) {
+      await new Promise((resolve) => setTimeout(resolve, Math.max(200, res.duration * 1000)))
+    }
+    state.speaking = Math.max(0, state.speaking - 1)
+    stopVoiceMood()
+    emit()
+    return res
+  }
+
   async function tick() {
     if (polling) return
     polling = true
@@ -1068,18 +1099,18 @@ function boot() {
       // 先取音频，再取状态（取到音频要立刻播）
       const r = await api.poll()
       if (r && r.ok && r.audio) {
-        state.speaking += 1
-        // 说话时切换到 voice 动图
-        playVoiceMood()
-        emit()
-        const res = await player.play(r.audio)
-        if (!res.ok) logEvent('播放失败: ' + res.error, 'warn')
-        if (res.duration) {
-          await new Promise((resolve) => setTimeout(resolve, Math.max(200, res.duration * 1000)))
-        }
-        state.speaking = Math.max(0, state.speaking - 1)
-        // 说完回到待机动图
-        stopVoiceMood()
+        await playBase64(r.audio)
+        polling = false
+        return
+      }
+      // 唱歌结果：和朗读分开字段，播完自动消费；连续点歌就按顺序一首首播。
+      if (r && r.ok && r.singAudio) {
+        showBubble('warm', '唱好了，播放中…', false)
+        const res = await playBase64(r.singAudio)
+        showBubble(res.ok ? 'warm' : 'error', res.ok
+          ? ('唱好了：' + (r.singSource || r.singFile || '上一首'))
+          : ('播放失败：' + res.error), true)
+        state.svc.pendingResult = Number(r.remainingSing) || 0
         emit()
         polling = false
         return

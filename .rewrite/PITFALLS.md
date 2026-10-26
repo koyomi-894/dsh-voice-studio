@@ -82,3 +82,9 @@
 - J3 写 heredoc 时反引号和 `\n` 会破坏文件，用 Python 生成脚本代替。
 - J4 每个 async 路由必须有 try/catch，且错误信息不能为空字符串。
 - J5 破坏性操作（卸载模型）必须有路径穿越防护和多道校验。
+
+## K. 唱歌链路
+
+- K1 `POST /sing` 成功只代表服务端把 wav 写进 `out/sing/`，**必须再 GET `/audio/<file>` 把字节取回**；只等 `singSong()` 返回 `ok` 就收工，会让「唱一首」永远没有可播的音频（旧版就是这个 bug）。
+- K2 唱歌结果和朗读队列是两套东西：`/poll` 必须用独立字段（`singAudio` 等）返回，绝不能塞进 `pendingAudio`，否则 `queue.shift()` / `pump()` 会误删朗读队列。
+- K3 转换是异步排队（接口先回 `queued`），前端不能在 `/sing` 返回时就提示「转换完成」；播放在轮询到 `singAudio` 后才发生。

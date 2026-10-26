@@ -22,7 +22,11 @@ export const state = {
 
   // 服务
   tts: { url: '', up: false, warm: false, warming: false },
-  svc: { url: '', up: false, warm: false, singing: false, warming: false, queueLen: 0 },
+  svc: {
+    url: '', up: false, warm: false, singing: false, warming: false, queueLen: 0,
+    // 唱歌转换结果的展示状态：错误、上次唱的歌、产出文件名、还没播的条数
+    lastError: '', lastSource: '', lastFile: '', pendingResult: 0,
+  },
   gpu: null,
 
   // 唱歌

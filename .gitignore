@@ -7,8 +7,10 @@ node_modules/
 user-config.json
 user-config.json.*
 
-# 个人模型与素材（不发布）
-profiles/dania/
+# 个人模型与素材（不发布）：除模板与内置角色外，profiles/ 下都是本地下载/自建角色
+profiles/*
+!profiles/_template/
+!profiles/builtin/
 
 # 开发期备份杂物
 .backup/

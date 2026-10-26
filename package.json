@@ -1,6 +1,6 @@
 {
   "name": "dsh-voice-studio-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "可自定义角色的 DSH 语音插件：把助手回复念出来、也能唱歌。声音模型、参考音色、背景图和图标全部通过 profile 目录配置，无需改代码。",
   "keywords": [
     "dsh",

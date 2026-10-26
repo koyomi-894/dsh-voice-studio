@@ -127,6 +127,10 @@ export function createSingPage({ onSing, onWarmToggle, onOpenFolder }) {
       warm: state.svc.warm,
       singing: state.svc.singing,
       queueLen: state.svc.queueLen,
+      pendingResult: state.svc.pendingResult,
+      svcError: state.svc.lastError || '',
+      lastSource: state.svc.lastSource || '',
+      lastFile: state.svc.lastFile || '',
       songs: state.songs,
       song: state.song,
       configured: Boolean(state.svc.url),
@@ -171,7 +175,11 @@ export function createSingPage({ onSing, onWarmToggle, onOpenFolder }) {
     backingDropdown.setValue(state.backing)
 
     btnSing.disabled = !configured || !state.song
-    btnSing.textContent = state.svc.queueLen > 0 ? '已加入队列（' + state.svc.queueLen + '）' : (state.svc.singing ? '转换中…' : '唱一首')
+    btnSing.textContent = state.svc.singing
+      ? '转换中…'
+      : (state.svc.queueLen > 0
+        ? '已加入队列（' + state.svc.queueLen + '）'
+        : (state.svc.pendingResult > 0 ? '唱一首（还有 ' + state.svc.pendingResult + ' 首待播）' : '唱一首'))
 
     setChildren(container, [
       // 状态在最上面
@@ -201,6 +209,14 @@ export function createSingPage({ onSing, onWarmToggle, onOpenFolder }) {
       ]),
       songDropdown.root,
       state.lastError ? el('div', { class: 'vs-error', text: state.lastError }) : null,
+      state.svc.lastError ? el('div', { class: 'vs-error', text: state.svc.lastError }) : null,
+      // 转换完成 ≠ 已播放：把「上次唱好的是哪首」明确写出来，避免点了没反应的感觉
+      state.svc.lastFile && !state.svc.lastError
+        ? el('div', { class: 'vs-hint vs-hint--tight', text: '上次已唱好：' + (state.svc.lastSource || state.svc.lastFile) })
+        : null,
+      state.svc.pendingResult > 0
+        ? el('div', { class: 'vs-hint vs-hint--tight', text: '还有 ' + state.svc.pendingResult + ' 首等待播放' })
+        : null,
       el('div', { class: 'vs-sep' }),
       stepsSlider.root,
       el('div', {

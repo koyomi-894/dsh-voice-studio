@@ -26,7 +26,7 @@ import {
   probeTts, queryTtsVram, setGptWeights, setSovitsWeights, synthesize, warmTts,
 } from './src/tts/client.js'
 import * as sapi from './src/tts/sapi.js'
-import { probeSvc, querySvcVram, listSongs, singSong, unloadSvc, warmSvc } from './src/svc/client.js'
+import { fetchAudio, probeSvc, querySvcVram, listSongs, singSong, unloadSvc, warmSvc } from './src/svc/client.js'
 import { createLauncher, pickPython, portOpen, spawnService } from './src/services/proc.js'
 import { formatMiB, readGpuMemory, resolveUsage, setBaseline } from './src/services/vram.js'
 import {
@@ -205,6 +205,13 @@ export function apply(ctx, rawConfig) {
   const svcQueue = []
   let svcPumping = false
   let pendingAudio = null
+  // 唱歌结果：转换成功只是把 wav 落在服务端，必须再把字节取回来，
+  // 否则前端只看到「唱完了」但没有任何可播的东西（旧版就是漏了这一步）。
+  // 播完由 /poll 取走即释放；用户连点会按队列顺序逐个播放。
+  const singResults = []
+  let lastSingError = ''
+  let lastSingSource = ''
+  let lastSingFile = ''
   // 最近成功推给 GPT-SoVITS 的微调权重（换角色/服务重启后自动重推）
   let ttsWeights = { gpt: '', sovits: '' }
 
@@ -546,7 +553,10 @@ export function apply(ctx, rawConfig) {
               }
               : null,
             tts: { url: eff.ttsUrl, up: ttsUp, warm: ttsWarm },
-            svc: { url: eff.svcUrl, up: svcUp, warm: svcWarm, singing: svcSinging, queueLen: svcQueue.length },
+            svc: {
+              url: eff.svcUrl, up: svcUp, warm: svcWarm, singing: svcSinging, queueLen: svcQueue.length,
+              lastError: lastSingError, lastSource: lastSingSource, lastFile: lastSingFile, pendingResult: singResults.length,
+            },
             gpu,
           })
         } catch (error) {
@@ -822,6 +832,18 @@ export function apply(ctx, rawConfig) {
             sendJson(res, 200, { ok: true, audio: b.toString('base64'), remaining: queue.length })
             return
           }
+          // 唱歌结果走独立字段：它和朗读队列是两套东西，不能混进 queue.shift()。
+          if (singResults.length) {
+            const s = singResults.shift()
+            sendJson(res, 200, {
+              ok: true,
+              singAudio: s.buffer.toString('base64'),
+              singFile: s.file,
+              singSource: s.source,
+              remainingSing: singResults.length,
+            })
+            return
+          }
           sendJson(res, 200, {
             ok: true,
             audio: '',
@@ -842,6 +864,8 @@ export function apply(ctx, rawConfig) {
         try {
           queue.length = 0
           pendingAudio = null
+          // 待播的歌声也一起取消：用户按「停止」就是不想再听到声音
+          singResults.length = 0
           sendJson(res, 200, { ok: true })
         } catch (error) {
           sendJson(res, 500, { ok: false, error: String(error?.message ?? error) })
@@ -972,16 +996,39 @@ export function apply(ctx, rawConfig) {
           const eff = effective()
           if (!eff.svcUrl) { svcQueue.shift(); continue }
           const lr = await ensureSvc(eff.svcUrl)
-          if (!lr.ok) { svcQueue.shift(); log('warn', '唱歌队列：服务不可用 ' + lr.error); continue }
+          if (!lr.ok) {
+            lastSingError = '唱歌服务不可用：' + (lr.error || '未知错误')
+            lastSingSource = job.source
+            svcQueue.shift()
+            log('warn', '唱歌队列：服务不可用 ' + lr.error)
+            continue
+          }
 
           svcSinging = true
           try {
             const r = await singSong(eff.svcUrl, job)
             if (!r.ok) {
-              log('warn', '唱歌队列：转换失败 ' + r.error)
+              lastSingError = r.error || '转换失败'
+              lastSingSource = job.source
+              log('warn', '唱歌队列：转换失败 ' + lastSingError)
             } else {
               svcWarm = true
               svcLastUsedAt = Date.now()
+              // 转换结果只在服务端目录里：取回字节，交给前端轮询播放。
+              const audio = await fetchAudio(r.url)
+              if (!audio.ok) {
+                lastSingError = '转换完成但取回音频失败：' + audio.error
+                log('warn', '唱歌队列：' + lastSingError)
+              } else {
+                singResults.push({ buffer: audio.buffer, file: r.file || '', source: job.source })
+                // 没人轮询时（挂件隐藏/页面没开）不能无限攒音频：一首 3MB 左右，
+                // 只保留最近 3 首，更早的丢掉——反正也已经落盘在服务端 out/sing/。
+                while (singResults.length > 3) singResults.shift()
+                lastSingError = ''
+                lastSingSource = job.source
+                lastSingFile = r.file || ''
+                log('info', `唱歌完成：${job.source} → ${r.file || '(未命名)'}（${(audio.buffer.length / 1024 / 1024).toFixed(1)}MB）`)
+              }
             }
           } finally {
             svcSinging = false
